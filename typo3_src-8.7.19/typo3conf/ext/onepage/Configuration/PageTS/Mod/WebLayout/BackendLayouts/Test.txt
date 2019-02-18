@@ -1,0 +1,25 @@
+mod.web_layout.BackendLayouts {
+  test {
+    title = test
+    config {
+      backend_layout {
+        colCount = 2
+        rowCount = 1
+        rows {
+          1 {
+            columns {
+              1 {
+                name = test1
+                colPos = 1
+              }
+              2 {
+                name = test2
+                colPos = 2
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

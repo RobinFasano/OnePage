@@ -1,0 +1,7 @@
+#
+# PageTS for OnePage
+#
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:onepage/Configuration/PageTS/RTE.txt">
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:onepage/Configuration/PageTS/TCEFORM.txt">
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:onepage/Configuration/PageTS/TCEMAIN.txt">
+<INCLUDE_TYPOSCRIPT: source="FILE:EXT:onepage/Configuration/PageTS/Mod/WebLayout/BackendLayouts.txt">

@@ -1,0 +1,231 @@
+################################################
+#### DYNAMIC CONTENT LIB FOR USAGE IN FLUID ####
+################################################
+#
+#  EXAMPLE
+#  ---------------
+#  <f:cObject typoscriptObjectPath="lib.dynamicContent" data="{pageUid: '{data.uid}', colPos: '0', wrap: '<div class=\"hero\">|</div>'}" />
+#
+#
+#  COLUMN NUMBERS
+#  ---------------
+#
+#  0  = main
+#  1  = left
+#  2  = right
+#  3  = border
+#
+#################
+lib.dynamicContent = COA
+lib.dynamicContent {
+    5 = LOAD_REGISTER
+    5 {
+        colPos.cObject = TEXT
+        colPos.cObject {
+            field = colPos
+            ifEmpty.cObject = TEXT
+            ifEmpty.cObject {
+                value.current = 1
+                ifEmpty = 0
+            }
+        }
+        pageUid.cObject = TEXT
+        pageUid.cObject {
+            field = pageUid
+            ifEmpty.data = TSFE:id
+        }
+        contentFromPid.cObject = TEXT
+        contentFromPid.cObject {
+            data = DB:pages:{register:pageUid}:content_from_pid
+            data.insertData = 1
+        }
+        wrap.cObject = TEXT
+        wrap.cObject {
+            field = wrap
+        }
+    }
+    20 = CONTENT
+    20 {
+        table = tt_content
+        select {
+            includeRecordsWithoutDefaultTranslation = 1
+            orderBy = sorting
+            where = {#colPos}={register:colPos}
+            where.insertData = 1
+            pidInList.data = register:pageUid
+            pidInList.override.data = register:contentFromPid
+        }
+        stdWrap {
+            dataWrap = {register:wrap}
+            required = 1
+        }
+    }
+    90 = RESTORE_REGISTER
+}
+
+temp.titleSectionId = TEXT
+temp.titleSectionId {
+  field = title
+  trim = 1
+  case = lower
+  replacement {
+    10 {
+      search.char = 32
+      replace = -
+    }
+    20 {
+      search = /(ä|Ä)/
+      useRegExp = 1
+      replace = ae
+    }
+    30 {
+      search = /(ö|Ö)/
+      useRegExp = 1
+      replace = oe
+    }
+    40 {
+      search = /(ü|Ü)/
+      useRegExp = 1
+      replace = ue
+    }
+    50 {
+      search = ß
+      replace = ss
+    }
+    60 {
+      search = /\/\\\.\:\;\,\&/
+      useRegExp = 1
+      replace =
+    }
+  }
+}
+lib.scrollSpyNavi = HMENU
+lib.scrollSpyNavi {
+  excludeUidList = 8
+  1 = TMENU
+  1 {
+    NO = 1
+    NO {
+      doNotLinkIt = 1
+      linkWrap = <li class="link">|</li>
+      stdWrap >
+      stdWrap {
+        cObject = TEXT
+        cObject {
+        field = nav_title // title
+        typolink {
+          parameter = 3
+          section.cObject < temp.titleSectionId
+          }
+        }
+      }
+    }
+  }
+}
+
+lib.sectionContent = HMENU
+lib.sectionContent {
+  1 = TMENU
+  1 {
+    NO = 1
+    NO {
+      doNotLinkIt = 1
+      stdWrap >
+      stdWrap {
+        cObject = COA
+        cObject {
+          if.value = 3
+          if.equals.field = doktype
+          if.negate = 1
+          10 < temp.titleSectionId
+          10.wrap = <section class="section scrollspy post center-align" id="|">
+          20 = CONTENT
+          20 {
+            table = tt_content
+            select {
+              pidInList.field = uid
+              where = colPos=0
+            }
+            stdWrap.wrap = <div class="row container">|</div>
+            stdWrap.required = 1
+            renderObj < tt_content
+          }
+
+          25 = COA
+          25 {
+              stdWrap.wrap = <div class="row container">|</div>
+              stdWrap.required = 1
+              10 = CONTENT
+              10 {
+                table = tt_content
+                select {
+                  pidInList.field = uid
+                  where = colPos=1
+                }
+                stdWrap.wrap = <h2>|</h2>
+                stdWrap.required = 1
+                renderObj < tt_content
+              }
+              20 = CONTENT
+              20 {
+                table = tt_content
+                select {
+                  pidInList.field = uid
+                  where = colPos=2
+                }
+                stdWrap.wrap = <div class="col s6">|</div>
+                stdWrap.required = 1
+                renderObj < tt_content
+              }
+              30 = CONTENT
+              30 {
+                table = tt_content
+                select {
+                  pidInList.field = uid
+                  where = colPos=3
+                }
+                stdWrap.wrap = <div class="col s6">|</div>
+                stdWrap.required = 1
+                renderObj < tt_content
+              }
+          }
+
+          30 = TEXT
+          30 {
+            wrap = </section>
+          }
+          35 = FILES
+          35 {
+            references {
+              table = pages
+              uid.data = uid
+              fieldName = media
+            }
+            stdWrap.wrap = <div class="parallax-container"><div class="parallax">|</div></div>
+            stdWrap.required = 1
+            renderObj = IMAGE
+            renderObj {
+              file {
+                import.data = file:current:uid
+                treatIdAsReference = 1
+              }
+              altText.data = file:current:alternative
+              titleText.data = file:current:title
+            }
+            maxItems = 3
+          }
+        }
+      }
+    }
+  }
+}
+
+
+lib.headerimage = IMAGE
+lib.headerimage {
+  file {
+    import.data = levelmedia:-1, slide
+    treatIdAsReference = 1
+    import.listNum = 0
+  }
+}
